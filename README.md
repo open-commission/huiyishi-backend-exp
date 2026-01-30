@@ -40,6 +40,7 @@
 
 - **后端框架**: Express.js
 - **数据库**: SQLite3
+- **Session管理**: express-session
 - **依赖管理**: npm
 - **API测试**: axios
 
@@ -58,6 +59,11 @@ npm start
 服务器将在 http://localhost:3000 上运行。
 
 ## API 接口
+
+### 认证接口
+- `GET /auth/callback` - 认证中心回调接口，接收username、userUUID、role参数并创建/更新用户
+- `GET /auth/current-user` - 获取当前认证用户信息
+- `POST /auth/logout` - 用户登出
 
 ### 会议室管理
 - `GET /meeting-rooms` - 获取所有会议室
