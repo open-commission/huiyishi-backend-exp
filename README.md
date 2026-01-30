@@ -4,6 +4,13 @@
 
 ## 功能特性
 
+### 认证系统
+- **Cookie认证**: 使用cookie存储用户UUID，实现自动登录
+- **中央认证**: 重定向到中央认证服务器(127.0.0.1:8080)
+- **自动用户创建**: 检测用户是否存在，不存在则自动创建
+- **Session管理**: 使用express-session管理用户会话
+- **参数传递**: 通过clientId、username、userUUID、role等参数与认证中心交互
+
 ### 1. 会议室管理
 - **会议室编号**: 唯一标识会议室
 - **会议室名称**: 会议室显示名称
@@ -60,11 +67,6 @@ npm start
 
 ## API 接口
 
-### 认证接口
-- `GET /auth/callback` - 认证中心回调接口，接收username、userUUID、role参数并创建/更新用户
-- `GET /auth/current-user` - 获取当前认证用户信息
-- `POST /auth/logout` - 用户登出
-
 ### 会议室管理
 - `GET /meeting-rooms` - 获取所有会议室
 - `GET /meeting-rooms/:id` - 获取指定会议室
@@ -113,24 +115,48 @@ npm start
 
 ```
 huiyishi-backend-exp/
-├── app.js                 # 主应用入口
+├── app.js                 # 主应用入口，包含认证中间件
 ├── models/
 │   └── db.js             # 数据库模型和初始化
 ├── routes/
+│   ├── auth.js           # 认证路由，处理认证回调和用户信息
+│   ├── index.js          # 主页路由，处理初始认证流程
 │   ├── meetingRooms.js   # 会议室管理路由
 │   ├── reservations.js   # 预约管理路由
 │   ├── roomStatuses.js   # 状态管理路由
 │   └── users.js          # 用户管理路由
 ├── package.json
 ├── README.md
-└── test-api.js           # API测试脚本
+├── test-api.js           # API测试脚本
+├── test-auth.js          # 认证功能测试脚本
+├── full-test.js          # 完整功能测试脚本
+└── simulate-auth-center.js # 模拟认证中心（用于测试）
 ```
+
+## 认证流程
+
+系统使用基于Cookie的认证机制：
+1. 用户访问任何受保护的路由时，系统检查是否存在用户UUID的Cookie
+2. 如果不存在，重定向到 `http://127.0.0.1:8080?clientId=1234567890&redirect=...`
+3. 认证中心完成认证后，回调到 `/auth/callback?username=...&userUUID=...&role=...`
+4. 系统检查用户是否存在，不存在则自动创建用户
+5. 将用户信息存储到Session中，并重定向回原始请求页面
 
 ## 测试
 
 运行测试脚本验证所有功能：
 ```bash
 node test-api.js
+```
+
+运行认证功能测试：
+```bash
+node test-auth.js
+```
+
+启动模拟认证中心（用于测试）：
+```bash
+node simulate-auth-center.js
 ```
 
 ## 注意事项
